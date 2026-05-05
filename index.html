@@ -1,13 +1,356 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cognitive Canvas - Spatial Writing</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.cdnfonts.com/css/open-dyslexic" rel="stylesheet">
+    
+    <!-- Snapshot Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
+    <link rel="stylesheet" href="/src/styles/themes.css">
+    <link rel="stylesheet" href="/src/styles/workspace.css">
+    <link rel="stylesheet" href="/src/styles/ui.css">
+</head>
+<body>
+
+    <script>
+        window.EXTERNAL_FIREBASE_CONFIG = {
+            apiKey: "AIzaSyCi6xs3ItLDs6XyBrBdq6c9m5OVUdr7cIU",
+            authDomain: "dyslexic-editor.firebaseapp.com",
+            projectId: "dyslexic-editor",
+            storageBucket: "dyslexic-editor.firebasestorage.app",
+            messagingSenderId: "64648281922",
+            appId: "1:64648281922:web:28b09d2ca0c209387ed2db",
+            measurementId: "G-JEV4QNFE72"
+        };
+    </script>
+
+    <!-- A11y Live Regions -->
+    <div id="toast-notification" role="alert" aria-live="assertive"></div>
+    <div id="loading-screen" role="status" aria-live="polite">Loading Cognitive Engine...</div>
+
+    <!-- Multi-Tab System Navigation -->
+    <div class="tab-bar-container" id="tab-bar" role="tablist" aria-label="Open Projects"></div>
+
+    <!-- Main Toolbar -->
+    <div class="toolbar dock-top" id="main-toolbar" role="toolbar" aria-label="Main Application Toolbar">
+        
+        <!-- Interactive Drag Handle for Docking -->
+        <div class="toolbar-drag-handle has-tooltip" id="toolbar-drag-handle" aria-label="Drag Toolbar to Dock" data-tooltip="Drag to dock to edges" tabindex="0">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="19" r="1"></circle>
+                <circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="19" r="1"></circle>
+            </svg>
+        </div>
+
+        <input type="text" id="project-name" class="project-title-input has-tooltip" data-tooltip="Rename Project" placeholder="Untitled Draft" value="My New Story" aria-label="Project Name" />
+        
+        <div class="toolbar-divider" style="margin: 0 8px;"></div>
+        
+
+        
+        
+        <div class="toolbar-divider" style="margin: 0 8px;"></div>
+        <button class="btn btn-secondary has-tooltip" onclick="document.getElementById('image-upload').click()" aria-label="Add Image" data-tooltip="Add Image">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+            <span>Image</span>
+        </button>
+        <button class="btn btn-secondary has-tooltip" onclick="document.getElementById('settings-modal').style.display='flex'; window.renderShortcutsUI(); window.triggerTutAction('open_settings');" aria-label="Open Personalization Settings" data-tooltip="Settings">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span>Settings</span>
+        </button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.openAccountModal()" aria-label="Open Account Settings" data-tooltip="Account">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>Account</span>
+        </button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.openDashboard()" aria-label="Open Projects Dashboard" data-tooltip="Projects">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+            <span>Projects</span>
+        </button>
+        <button id="save-btn" class="btn btn-secondary has-tooltip" onclick="window.saveToCloud(event)" aria-label="Save to Cloud" data-tooltip="Save to Cloud">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+            <span>Save</span>
+        </button>
+        
+        <div class="toolbar-separator" aria-hidden="true"></div>
+        
+        <button id="focus-btn" class="btn btn-secondary has-tooltip" onclick="window.toggleFocusMode()" aria-label="Toggle Focus Mode" data-tooltip="Focus Mode">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
+            <span>Focus</span>
+        </button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.showTidyMenu(event)" aria-label="Auto Tidy Canvas Organization" data-tooltip="Auto-Tidy Canvas">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            <span>Tidy</span>
+        </button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.takeSnapshot()" aria-label="Export Canvas as PNG Snapshot" data-tooltip="Export Snapshot">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+            <span>Snapshot</span>
+        </button>
+        
+        <button class="btn has-tooltip" onclick="window.compileStory()" aria-label="Compile and Review Story Draft" data-tooltip="Compile Draft">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+            <span>Compile</span>
+        </button>
+    </div>
+
+    <div class="zoom-controls" role="group" aria-label="Canvas Zoom Controls">
+        <button class="btn btn-secondary has-tooltip" onclick="window.zoomIn()" aria-label="Zoom In" data-tooltip="Zoom In">+</button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.resetView()" aria-label="Reset Zoom Level" data-tooltip="Reset Zoom">Reset</button>
+        <button class="btn btn-secondary has-tooltip" onclick="window.zoomOut()" aria-label="Zoom Out" data-tooltip="Zoom Out">-</button>
+    </div>
+
+    <!-- The Infinite Workspace -->
+    <div id="workspace" aria-label="Spatial Workspace" role="application">
+        <div id="canvas-content">
+            <svg id="tether-layer" aria-hidden="true">\n<defs><marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="var(--focus-ring)" /></marker><marker id="arrow-gray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="gray" /></marker></defs></svg>
+            <div id="nodes-container"></div>
+        </div>
+        <div id="marquee" class="marquee-selection"></div>
+    </div>
+    
+    <!-- Docking Highlight Zones -->
+    <div class="dock-zone top"></div>
+    <div class="dock-zone bottom"></div>
+    <div class="dock-zone left"></div>
+    <div class="dock-zone right"></div>
+
+    <!-- Tooltip acts as a live listbox for suggestions -->
+    
+    <!-- Color Context Menu -->
+    <div id="color-context-menu" class="context-menu" role="menu" aria-label="Text Color Menu">
+        <div style="display: flex; gap: 4px; margin-bottom: 8px; justify-content: space-between; border-bottom: 1px solid var(--surface-border); padding-bottom: 8px;">
+            <button class="icon-btn text-style-btn has-tooltip" data-command="bold" data-tooltip="Bold (Ctrl+B)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path></svg>
+            </button>
+            <button class="icon-btn text-style-btn has-tooltip" data-command="italic" data-tooltip="Italic (Ctrl+I)">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"></line><line x1="14" y1="20" x2="5" y2="20"></line><line x1="15" y1="4" x2="9" y2="20"></line></svg>
+            </button>
+            <div style="width: 1px; background: var(--surface-border); margin: 0 4px;"></div>
+            <button class="icon-btn text-align-btn has-tooltip" data-align="left" data-tooltip="Align Left">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="17" y1="10" x2="3" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+            </button>
+            <button class="icon-btn text-align-btn has-tooltip" data-align="center" data-tooltip="Align Center">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="10" x2="6" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="18" y1="18" x2="6" y2="18"></line></svg>
+            </button>
+            <button class="icon-btn text-align-btn has-tooltip" data-align="right" data-tooltip="Align Right">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="10" x2="7" y2="10"></line><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="14" x2="3" y2="14"></line><line x1="21" y1="18" x2="7" y2="18"></line></svg>
+            </button>
+        </div>
+        <div class="color-options-grid">
+            <button class="text-color-btn" style="background: #e74c3c" data-color="#e74c3c" aria-label="Red"></button>
+            <button class="text-color-btn" style="background: #e67e22" data-color="#e67e22" aria-label="Orange"></button>
+            <button class="text-color-btn" style="background: #f1c40f" data-color="#f1c40f" aria-label="Yellow"></button>
+            <button class="text-color-btn" style="background: #2ecc71" data-color="#2ecc71" aria-label="Green"></button>
+            <button class="text-color-btn" style="background: #3498db" data-color="#3498db" aria-label="Blue"></button>
+            <button class="text-color-btn" style="background: #9b59b6" data-color="#9b59b6" aria-label="Purple"></button>
+            <button class="text-color-btn" style="background: #ecf0f1" data-color="#ecf0f1" aria-label="White"></button>
+            <button class="text-color-btn" style="background: #34495e" data-color="#34495e" aria-label="Dark"></button>
+        </div>
+        <button class="text-color-reset" data-color="">Reset Color</button>
+    </div>
+    <!-- Modals -->
+    <div id="welcome-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
+        <div class="modal-content" style="max-width: 450px; text-align: center;">
+            <div class="modal-header" style="border-bottom: none; margin-bottom: 0; justify-content: flex-end; padding-bottom: 0;">
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; border: none; background: transparent;" onclick="window.dismissWelcome()" aria-label="Close Welcome Prompt">✕</button>
+            </div>
+            <div style="font-size: 4rem; margin-bottom: 10px;">🧠</div>
+            <h2 id="welcome-title" style="margin-top: 0; margin-bottom: 10px;">Welcome to Cognitive Canvas!</h2>
+            <p style="color: var(--text-muted); font-size: 1.05rem; line-height: 1.5; margin-bottom: 25px;">Would you like a quick 1-minute interactive tour to learn the basics of spatial writing?</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button class="btn" style="padding: 12px 24px; font-size: 1.05rem;" onclick="window.acceptWelcome()">Yes, show me around!</button>
+                <button class="btn btn-secondary" style="padding: 12px 24px; font-size: 1.05rem;" onclick="window.dismissWelcome()">No thanks</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Interactive Tutorial Overlay -->
+    <div id="tutorial-overlay" role="dialog" aria-live="polite">
+        <div id="tut-normal-view" style="display: flex; flex-direction: column; gap: 12px;">
+            <div id="tut-chunk-name" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; margin-bottom: -8px; font-weight: 700;">BASICS</div>
+            <h3 id="tut-title">Step 1</h3>
+            <p id="tut-desc">Description</p>
+            <div class="tut-controls">
+                <button class="tut-btn-skip" onclick="window.endTutorial()">Skip Tour</button>
+                <span id="tut-progress" style="font-size: 0.9rem; font-weight: 500; opacity: 0.8;">1/5</span>
+                <button class="tut-btn" onclick="window.nextTutStep()" id="tut-next-btn">Next ➔</button>
+            </div>
+        </div>
+        <div id="tut-chunk-view" style="display: none; flex-direction: column; gap: 12px; align-items: center; text-align: center; padding: 10px 0;">
+            <h2 id="tut-chunk-finish-title" style="margin: 0; font-size: 1.5rem;">Great job! 🎉</h2>
+            <p id="tut-chunk-finish-desc" style="margin: 0; font-size: 1.05rem; opacity: 0.9;">Ready for the next lesson?</p>
+            <div style="display: flex; gap: 12px; margin-top: 8px;">
+                <button class="tut-btn-skip" onclick="window.endTutorial()">I'm Good For Now</button>
+                <button class="tut-btn" onclick="window.startNextChunk()" id="tut-start-chunk-btn">Complete Lesson ➔</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="compile-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="compile-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="compile-title">Your Draft</h2>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn btn-secondary" onclick="window.readAloud()" aria-label="Read compiled draft aloud">🔊 Listen</button>
+                    <button class="btn btn-secondary" onclick="window.downloadDraft()" aria-label="Download draft as text file">💾 Download .txt</button>
+                    <button class="btn btn-secondary" onclick="window.downloadDocx()" aria-label="Download draft as Word document">📄 Download .docx</button>
+                    <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; box-shadow: none; border:none;" onclick="document.getElementById('compile-modal').style.display='none'" aria-label="Close Draft Modal">✕</button>
+                </div>
+            </div>
+            <div id="compiled-text" aria-live="polite" tabindex="0"></div>
+            <div style="text-align: right;">
+                <button class="btn" onclick="document.getElementById('compile-modal').style.display='none'">Back to Canvas</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="dashboard-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="dashboard-title">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="dashboard-title">Project Dashboard</h2>
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; border: none;" onclick="document.getElementById('dashboard-modal').style.display='none'" aria-label="Close Dashboard">✕</button>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button class="btn" onclick="window.addNewTab(); document.getElementById('dashboard-modal').style.display='none';" aria-label="Create a new blank canvas in a new tab">➕ Create Blank Canvas</button>
+                <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()" aria-label="Import Project File">📥 Import (.cvas)</button>
+                <button class="btn btn-secondary" onclick="window.exportProject()" aria-label="Export Current Project">📤 Export Current</button>
+            </div>
+            <div id="project-list" class="project-list" role="list" aria-label="Saved Projects"></div>
+        </div>
+    </div>
+
+    <!-- Hidden input for importing files & adding images -->
+    <input type="file" id="import-file" accept=".cvas,.json" style="display:none" onchange="window.importProject(event)">
+    <input type="file" id="image-upload" accept="image/*" style="display:none" onchange="window.handleImageUpload(event)">
+
+    <div id="account-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="account-title">
+        <div class="modal-content" style="max-width: 450px;">
+            <div class="modal-header">
+                <h2 id="account-title">Account Storage</h2>
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; border: none;" onclick="document.getElementById('account-modal').style.display='none'" aria-label="Close Account Settings">✕</button>
+            </div>
+            <div id="account-status-text" aria-live="polite" style="margin-bottom: 15px; color: var(--text-muted); line-height: 1.6; font-size: 0.95rem;"></div>
+            
+            <div id="auth-forms" style="display:flex; flex-direction:column; gap:12px;">
+                <input type="email" id="auth-email" class="setting-select" placeholder="Email Address" aria-label="Email Address" />
+                <input type="password" id="auth-password" class="setting-select" placeholder="Password" aria-label="Password" />
+                <div style="display:flex; gap:10px; margin-top: 10px;">
+                    <button class="btn" style="flex: 1; justify-content: center;" onclick="window.loginAccount(event)">Log In</button>
+                    <button class="btn btn-secondary" style="flex: 1; justify-content: center;" onclick="window.registerAccount(event)">Register</button>
+                </div>
+                <p id="auth-error" role="alert" style="color: var(--error-border); font-size: 0.9rem; margin: 5px 0 0 0; line-height: 1.4; text-align: center;"></p>
+            </div>
+            
+            <div id="auth-logout-form" style="display:none; margin-top: 10px;">
+                <button class="btn btn-danger" style="width: 100%; justify-content: center;" onclick="window.logoutAccount(event)">Sign Out</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settings-title">
+        <div class="modal-content" style="max-width: 550px;">
+            <div class="modal-header">
+                <h2 id="settings-title">Personalization</h2>
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; border: none;" onclick="document.getElementById('settings-modal').style.display='none'" aria-label="Close Settings">✕</button>
+            </div>
+            
+                        <div class="settings-section">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 8px;">Reading & Typography</h3>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="setting-group" style="flex: 1; min-width: 200px;">
+                        <label for="set-font">Typography</label>
+                        <select class="setting-select" id="set-font" onchange="window.applySettings()">
+                            <option value="'Lexend', sans-serif">Lexend (Optimized for fluency)</option>
+                            <option value="'OpenDyslexic', sans-serif">OpenDyslexic (Heavy-bottomed)</option>
+                            <option value="system-ui, sans-serif">Standard System Font</option>
+                        </select>
+                    </div>
+                    <div class="setting-group" style="flex: 1; min-width: 200px;">
+                        <label for="set-size">Text Size</label>
+                        <select class="setting-select" id="set-size" onchange="window.applySettings()">
+                            <option value="small">Small</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="large">Large</option>
+                            <option value="xlarge">Extra Large</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="setting-group" style="flex: 1; min-width: 200px;">
+                        <label for="set-spacing">Text Spacing</label>
+                        <select class="setting-select" id="set-spacing" onchange="window.applySettings()">
+                            <option value="normal">Standard</option>
+                            <option value="relaxed">Relaxed (Better tracking)</option>
+                            <option value="loose">Loose (Maximum separation)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group switch-wrapper" style="flex: 1; min-width: 200px;">
+                        <label for="set-bionic" style="margin-bottom:0;">Focus Reading</label>
+                        <label class="switch">
+                            <input type="checkbox" id="set-bionic" onchange="window.processAllNodes()">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-section" style="margin-top: 5px;">
+                <h3 style="margin-top: 0; margin-bottom: 20px; font-size: 1.1rem; border-bottom: 1px solid var(--surface-border); padding-bottom: 8px;">Appearance & Feedback</h3>
+
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <div class="setting-group" style="flex: 1; min-width: 200px;">
+                        <label for="set-theme">Visual Overlay</label>
+                        <select class="setting-select" id="set-theme" onchange="window.applySettings()">
+                            <option value="dark">Deep Space (Dark)</option>
+                            <option value="warm">Warm Paper (Yellow tint)</option>
+                            <option value="sage">Soft Sage (Green tint)</option>
+                            <option value="blue">Calm Blue (Blue tint)</option>
+                            <option value="grayscale">High Contrast (Light Grayscale)</option>
+                            <option value="grayscale-dark">High Contrast (Dark Grayscale)</option>
+                        </select>
+                    </div>
+                    <div class="setting-group" style="flex: 1; min-width: 200px;">
+                        <label for="set-shape">Node Shape</label>
+                        <select class="setting-select" id="set-shape" onchange="window.applySettings()">
+                            <option value="round" selected>Rounded Edges</option>
+                            <option value="sharp">Sharp Edges</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="setting-group switch-wrapper" style="margin-bottom: 30px;">
+                    <label for="set-sound" style="margin-bottom:0;">Audible Cues (Subtle clicks)</label>
+                    <label class="switch">
+                        <input type="checkbox" id="set-sound" onchange="window.applySettings()" checked>
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="setting-group" style="margin-top: 15px;">
+                <label style="display: flex; justify-content: space-between; align-items: flex-end;">
+                    Keyboard Shortcuts
+                    <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 8px; box-shadow: none; border: none; background: transparent; text-decoration: underline;" onclick="window.resetShortcuts()" aria-label="Reset shortcuts to defaults">Reset Defaults</button>
+                </label>
+                <div id="shortcuts-list" style="max-height: 220px; overflow-y: auto; border: 1px solid var(--surface-border); padding: 8px; border-radius: 12px; background: rgba(0,0,0,0.05);" role="list" aria-label="Shortcut Configurator"></div>
+            </div>
+
+            <div class="setting-group" style="margin-top: 25px; border-top: 1px solid var(--surface-border); padding-top: 20px;">
+                <button class="btn btn-secondary" style="width: 100%; justify-content: center; padding: 12px;" onclick="window.startTutorial(); document.getElementById('settings-modal').style.display='none';">Restart Interactive Tutorial</button>
+            </div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn" onclick="document.getElementById('settings-modal').style.display='none'">Done</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Core App Logic -->
+    <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>

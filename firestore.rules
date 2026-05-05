@@ -1,0 +1,31 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Validation definitions
+    function isSignedIn() { return request.auth != null; }
+    function isOwner(uid) { return isSignedIn() && request.auth.uid == uid; }
+
+    function isValidId(id) { 
+        return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+
+    match /artifacts/{appId}/users/{uid}/settings/dictionary {
+      allow read: if isOwner(uid);
+      allow update, create: if isOwner(uid) && 
+                              request.resource.data.keys().hasOnly(['words']) && 
+                              request.resource.data.words is list &&
+                              request.resource.data.words.size() <= 2000;
+    }
+
+    match /artifacts/{appId}/users/{uid}/projects/{projectId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid) && isValidId(projectId);
+      allow delete: if isOwner(uid);
+    }
+  }
+}

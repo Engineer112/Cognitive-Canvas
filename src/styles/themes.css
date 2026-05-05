@@ -1,0 +1,113 @@
+/* ==========================================================================
+           1. CSS VARIABLES & THEMES (Modernized Palettes)
+           ========================================================================== */
+        :root {
+            /* Default Theme: Deep Space (Sleek Dark Mode) */
+            --bg-color: #0f172a; 
+            --grid-color: rgba(255, 255, 255, 0.04);
+            --node-bg: rgba(30, 41, 59, 0.85);
+            --node-border: rgba(255, 255, 255, 0.1);
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --error-bg: rgba(239, 68, 68, 0.15); 
+            --error-border: #ef4444;
+            --grammar-bg: rgba(16, 185, 129, 0.15); 
+            --grammar-border: #10b981;
+            --focus-ring: #3b82f6;
+            --tether-color: rgba(59, 130, 246, 0.5);
+            --surface-glass: rgba(15, 23, 42, 0.98);
+            --surface-border: rgba(255, 255, 255, 0.08);
+            
+            /* Dynamic Typography & Layout Settings */
+            --font-family: 'Lexend', sans-serif;
+            --line-height: 1.6;
+            --letter-spacing: 0.02em;
+            --node-radius: 16px;
+            --editor-font-size: 1.15rem;
+        }
+
+        body.theme-warm {
+            --bg-color: #fcfaf8; --grid-color: rgba(0, 0, 0, 0.05); 
+            --node-bg: rgba(255, 255, 255, 0.9); --node-border: rgba(0, 0, 0, 0.08);
+            --text-color: #334155; --text-muted: #64748b;
+            --surface-glass: rgba(252, 250, 248, 0.98); --surface-border: rgba(0, 0, 0, 0.05);
+            --tether-color: rgba(245, 158, 11, 0.6); --focus-ring: #f59e0b;
+        }
+        body.theme-sage {
+            --bg-color: #f1f5f2; --grid-color: rgba(20, 83, 45, 0.06); 
+            --node-bg: rgba(255, 255, 255, 0.9); --node-border: rgba(20, 83, 45, 0.1);
+            --text-color: #1e2f23; --text-muted: #57705e;
+            --surface-glass: rgba(241, 245, 242, 0.98); --surface-border: rgba(20, 83, 45, 0.1);
+            --tether-color: rgba(34, 197, 94, 0.5); --focus-ring: #10b981;
+        }
+        body.theme-blue {
+            --bg-color: #f0f6fc; --grid-color: rgba(14, 165, 233, 0.06); 
+            --node-bg: rgba(255, 255, 255, 0.95); --node-border: rgba(14, 165, 233, 0.15);
+            --text-color: #0f172a; --text-muted: #64748b;
+            --surface-glass: rgba(240, 246, 252, 0.98); --surface-border: rgba(14, 165, 233, 0.1);
+            --tether-color: rgba(14, 165, 233, 0.5); --focus-ring: #0ea5e9;
+        }
+        body.theme-grayscale {
+            --bg-color: #f4f4f5; --grid-color: rgba(0, 0, 0, 0.06); 
+            --node-bg: rgba(255, 255, 255, 0.95); --node-border: rgba(0, 0, 0, 0.1);
+            --text-color: #18181b; --text-muted: #71717a;
+            --surface-glass: rgba(244, 244, 245, 0.98); --surface-border: rgba(0, 0, 0, 0.1);
+            --tether-color: rgba(113, 113, 122, 0.5); --focus-ring: #52525b;
+            --error-bg: rgba(0,0,0,0.05); --error-border: #52525b;
+            --grammar-bg: rgba(0,0,0,0.03); --grammar-border: #71717a;
+        }
+        body.theme-grayscale-dark {
+            --bg-color: #18181b; --grid-color: rgba(255, 255, 255, 0.05); 
+            --node-bg: rgba(39, 39, 42, 0.9); --node-border: rgba(255, 255, 255, 0.1);
+            --text-color: #f4f4f5; --text-muted: #a1a1aa;
+            --surface-glass: rgba(24, 24, 27, 0.98); --surface-border: rgba(255, 255, 255, 0.08);
+            --tether-color: rgba(161, 161, 170, 0.4); --focus-ring: #a1a1aa;
+            --error-bg: rgba(255,255,255,0.1); --error-border: #d4d4d8;
+            --grammar-bg: rgba(255,255,255,0.05); --grammar-border: #a1a1aa;
+        }
+
+        /* ==========================================================================
+           2. GLOBAL & UTILITIES (A11y Upgrades)
+           ========================================================================== */
+        *, *::before, *::after { box-sizing: border-box; }
+        
+        body, html {
+            margin: 0; padding: 0; width: 100vw; height: 100vh;
+            font-family: var(--font-family); background-color: var(--bg-color);
+            color: var(--text-color);
+            overflow: hidden; touch-action: none; user-select: none;
+            transition: background-color 0.4s ease, color 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* A11Y Mandatory Focus States */
+        *:focus-visible {
+            outline: 3px solid var(--focus-ring) !important;
+            outline-offset: 3px !important;
+            border-radius: inherit;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--surface-border); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        /* Toast Notification */
+        #toast-notification {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--error-border); color: #fff; padding: 14px 28px;
+            border-radius: 12px; z-index: 9999; font-weight: 500;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.1);
+            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center; max-width: 90%; font-size: 0.95rem;
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* Loading Screen */
+        #loading-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; 
+            background: var(--bg-color); color: var(--text-color);
+            z-index: 3000; display: flex; align-items: center; justify-content: center; 
+            font-size: 1.5rem; font-weight: 500; letter-spacing: -0.02em;
+        }
