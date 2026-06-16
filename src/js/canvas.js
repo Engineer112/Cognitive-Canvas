@@ -22,6 +22,7 @@ export function setupCanvas() {
             const py = window.panY || 0;
             container.style.transform = `translate(${px}px, ${py}px) scale(${s})`;
         }
+        if (window.renderMinimap) window.renderMinimap();
     };
 
     window.zoomIn = function() {
@@ -37,11 +38,45 @@ export function setupCanvas() {
     };
 
     window.resetView = function() {
-        window.scale = 1;
-        window.panX = 0;
-        window.panY = 0;
+        if (!window.nodesMap || window.nodesMap.size === 0) {
+            window.scale = 1;
+            window.panX = 0;
+            window.panY = 0;
+            window.updateCanvasTransform();
+            return;
+        }
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        window.nodesMap.forEach(node => {
+            const x = parseFloat(node.style.left);
+            const y = parseFloat(node.style.top);
+            if (!isNaN(x) && !isNaN(y)) {
+                minX = Math.min(minX, x);
+                minY = Math.min(minY, y);
+                maxX = Math.max(maxX, x + node.offsetWidth);
+                maxY = Math.max(maxY, y + node.offsetHeight);
+            }
+        });
+        if (minX === Infinity) return;
+        
+        const padding = 50;
+        const width = maxX - minX;
+        const height = maxY - minY;
+        
+        const scaleX = (window.innerWidth - padding * 2) / width;
+        const scaleY = (window.innerHeight - padding * 2) / height;
+        
+        window.scale = Math.max(0.2, Math.min(1.5, scaleX, scaleY));
+        window.panX = (window.innerWidth / 2) - ((minX + width / 2) * window.scale);
+        window.panY = (window.innerHeight / 2) - ((minY + height / 2) * window.scale);
+        
         window.updateCanvasTransform();
         window.updateTethers && window.updateTethers();
+    };
+
+    window.goToRootNode = function() {
+        if (!window.nodeSequence || window.nodeSequence.length === 0) return;
+        const rootId = window.nodeSequence[0];
+        window.panToNode(rootId);
     };
 
     window.toggleFocusMode = function() {
@@ -253,6 +288,7 @@ export function setupCanvas() {
                 const mouseY = e.clientY - rect.top;
                 const actualX = (mouseX - (window.panX || 0)) / (window.scale || 1);
                 const actualY = (mouseY - (window.panY || 0)) / (window.scale || 1);
+                window.lastNodeCreationTime = Date.now();
                 window.createNode(actualX, actualY);
                 if (window.triggerTutAction) window.triggerTutAction('create_node');
                 lastTap = 0; // reset
@@ -376,4 +412,228 @@ export function setupCanvas() {
             window.updateCanvasTransform();
         }
     }, { passive: false });
+
+    workspace.addEventListener('dblclick', (e) => {
+        if (window.lastNodeCreationTime && Date.now() - window.lastNodeCreationTime < 500) return;
+        if (e.target.id === 'workspace' || e.target.id === 'canvas-content' || (e.target.tagName === 'svg' && e.target.id === 'tether-layer') || e.target.tagName === 'svg' || e.target.tagName === 'path') {
+            const rect = workspace.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const actualX = (mouseX - (window.panX || 0)) / (window.scale || 1);
+            const actualY = (mouseY - (window.panY || 0)) / (window.scale || 1);
+            window.createNode(actualX, actualY);
+            if (window.triggerTutAction) window.triggerTutAction('create_node');
+        }
+    });
+
+    // Minimap Implementation
+    window.toggleMinimap = function() {
+        const container = document.getElementById('minimap-container');
+        if (container.style.display === 'none' || !container.style.display) {
+            container.style.display = 'block';
+            window.renderMinimap();
+        } else {
+            container.style.display = 'none';
+        }
+    };
+
+    window.renderMinimap = function() {
+        const container = document.getElementById('minimap-container');
+        if (!container || container.style.display === 'none') return;
+        
+        const canvas = document.getElementById('minimap-canvas');
+        if (!canvas) return;
+        
+        const ctx = canvas.getContext('2d');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.clearRect(0, 0, width, height);
+
+        if (!window.nodesMap || window.nodesMap.size === 0) return;
+
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        window.nodesMap.forEach(node => {
+            const nx = parseFloat(node.style.left);
+            const ny = parseFloat(node.style.top);
+            if (!isNaN(nx) && !isNaN(ny)) {
+                minX = Math.min(minX, nx);
+                minY = Math.min(minY, ny);
+                maxX = Math.max(maxX, nx + node.offsetWidth);
+                maxY = Math.max(maxY, ny + node.offsetHeight);
+            }
+        });
+
+        if (minX === Infinity) return;
+
+        const padding = 60; // Minimal padding so the minimap bounds essentially just the nodes
+        minX -= padding;
+        minY -= padding;
+        maxX += padding;
+        maxY += padding;
+
+        const mapWidth = maxX - minX;
+        const mapHeight = maxY - minY;
+        
+        const scaleX = width / mapWidth;
+        const scaleY = height / mapHeight;
+        const mapScale = Math.min(scaleX, scaleY);
+        
+        const offsetX = (width - mapWidth * mapScale) / 2;
+        const offsetY = (height - mapHeight * mapScale) / 2;
+
+        // Draw grid lines
+        const gridColor = getComputedStyle(document.body).getPropertyValue('--grid-color').trim() || 'rgba(150, 150, 150, 0.15)';
+        ctx.strokeStyle = gridColor;
+        ctx.lineWidth = 1;
+
+        const gridSize = 40; // Match the actual grid size
+        const startLogicalX = minX - (offsetX / mapScale);
+        const startLogicalY = minY - (offsetY / mapScale);
+        const endLogicalX = startLogicalX + width / mapScale;
+        const endLogicalY = startLogicalY + height / mapScale;
+
+        const firstGridX = Math.floor(startLogicalX / gridSize) * gridSize;
+        const firstGridY = Math.floor(startLogicalY / gridSize) * gridSize;
+
+        ctx.beginPath();
+        for (let lx = firstGridX; lx < endLogicalX; lx += gridSize) {
+            const drawX = offsetX + (lx - minX) * mapScale;
+            ctx.moveTo(drawX, 0);
+            ctx.lineTo(drawX, height);
+        }
+        for (let ly = firstGridY; ly < endLogicalY; ly += gridSize) {
+            const drawY = offsetY + (ly - minY) * mapScale;
+            ctx.moveTo(0, drawY);
+            ctx.lineTo(width, drawY);
+        }
+        ctx.stroke();
+
+        // Draw connections
+        if (window.edges && window.edges.length > 0) {
+            ctx.strokeStyle = 'rgba(150, 150, 150, 0.4)';
+            ctx.lineWidth = Math.max(1, 2 * mapScale);
+            ctx.beginPath();
+            window.edges.forEach(edge => {
+                const src = window.nodesMap.get(edge.source);
+                const tgt = window.nodesMap.get(edge.target);
+                if (src && tgt) {
+                    const sx = parseFloat(src.style.left) + src.offsetWidth / 2;
+                    const sy = parseFloat(src.style.top) + src.offsetHeight / 2;
+                    const tx = parseFloat(tgt.style.left) + tgt.offsetWidth / 2;
+                    const ty = parseFloat(tgt.style.top) + tgt.offsetHeight / 2;
+                    
+                    const drawSX = offsetX + (sx - minX) * mapScale;
+                    const drawSY = offsetY + (sy - minY) * mapScale;
+                    const drawTX = offsetX + (tx - minX) * mapScale;
+                    const drawTY = offsetY + (ty - minY) * mapScale;
+                    
+                    ctx.moveTo(drawSX, drawSY);
+                    ctx.lineTo(drawTX, drawTY);
+                }
+            });
+            ctx.stroke();
+        }
+
+        // Draw nodes
+        window.nodesMap.forEach(node => {
+            const nx = parseFloat(node.style.left);
+            const ny = parseFloat(node.style.top);
+            const w = node.offsetWidth;
+            const h = node.offsetHeight;
+            
+            const drawX = offsetX + (nx - minX) * mapScale;
+            const drawY = offsetY + (ny - minY) * mapScale;
+            const drawW = w * mapScale;
+            const drawH = h * mapScale;
+            
+            // Try to match the actual node color or fallback to a solid gray
+            let nodeColor = 'rgba(150, 150, 150, 0.8)';
+            if (node.dataset.color) {
+                switch (node.dataset.color) {
+                    case 'blue': nodeColor = 'rgba(59, 130, 246, 0.8)'; break;
+                    case 'green': nodeColor = 'rgba(16, 185, 129, 0.8)'; break;
+                    case 'purple': nodeColor = 'rgba(168, 85, 247, 0.8)'; break;
+                    case 'yellow': nodeColor = 'rgba(245, 158, 11, 0.8)'; break;
+                    case 'red': nodeColor = 'rgba(239, 68, 68, 0.8)'; break;
+                }
+            } else if (node.classList.contains('focused') || node.classList.contains('selected')) {
+                nodeColor = 'rgba(59, 130, 246, 0.9)'; // Focus ring color vaguely
+            }
+
+            ctx.fillStyle = nodeColor;
+            ctx.beginPath();
+            ctx.roundRect(drawX, drawY, Math.max(2, drawW), Math.max(2, drawH), 2);
+            ctx.fill();
+        });
+
+        // Update Viewport Rect
+        const viewportBox = document.getElementById('minimap-viewport');
+        if (viewportBox) {
+            const s = window.scale || 1;
+            const px = window.panX || 0;
+            const py = window.panY || 0;
+            
+            const viewCenterX = (window.innerWidth / 2 - px) / s;
+            const viewCenterY = (window.innerHeight / 2 - py) / s;
+            const viewW = (window.innerWidth / s);
+            const viewH = (window.innerHeight / s);
+            
+            const viewMapX = offsetX + (viewCenterX - viewW/2 - minX) * mapScale;
+            const viewMapY = offsetY + (viewCenterY - viewH/2 - minY) * mapScale;
+            const viewMapW = viewW * mapScale;
+            const viewMapH = viewH * mapScale;
+            
+            viewportBox.style.left = viewMapX + 'px';
+            viewportBox.style.top = viewMapY + 'px';
+            viewportBox.style.width = viewMapW + 'px';
+            viewportBox.style.height = viewMapH + 'px';
+        }
+        
+        // Store map transform data for interactions
+        container._mapTrans = { minX, minY, mapScale, offsetX, offsetY };
+    };
+
+    // Setup minimap dragging interactions
+    const minimapOverlay = document.getElementById('minimap-overlay');
+    if (minimapOverlay) {
+        let isDraggingMinimap = false;
+        
+        const handleMinimapInteraction = (e) => {
+            const container = document.getElementById('minimap-container');
+            if (!container || !container._mapTrans) return;
+            
+            const rect = container.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
+            
+            const trans = container._mapTrans;
+            const logicalX = trans.minX + (clickX - trans.offsetX) / trans.mapScale;
+            const logicalY = trans.minY + (clickY - trans.offsetY) / trans.mapScale;
+            
+            const s = window.scale || 1;
+            window.panX = window.innerWidth / 2 - logicalX * s;
+            window.panY = window.innerHeight / 2 - logicalY * s;
+            window.updateCanvasTransform();
+        };
+
+        minimapOverlay.addEventListener('pointerdown', (e) => {
+            isDraggingMinimap = true;
+            minimapOverlay.setPointerCapture(e.pointerId);
+            handleMinimapInteraction(e);
+        });
+
+        minimapOverlay.addEventListener('pointermove', (e) => {
+            if (isDraggingMinimap) {
+                handleMinimapInteraction(e);
+            }
+        });
+
+        minimapOverlay.addEventListener('pointerup', (e) => {
+            isDraggingMinimap = false;
+            minimapOverlay.releasePointerCapture(e.pointerId);
+        });
+    }
 }

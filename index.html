@@ -9,10 +9,6 @@
     
     <!-- Snapshot Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-
-    <link rel="stylesheet" href="/src/styles/themes.css">
-    <link rel="stylesheet" href="/src/styles/workspace.css">
-    <link rel="stylesheet" href="/src/styles/ui.css">
 </head>
 <body>
 
@@ -58,48 +54,61 @@
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
             <span>Image</span>
         </button>
-        <button class="btn btn-secondary has-tooltip" onclick="document.getElementById('settings-modal').style.display='flex'; window.renderShortcutsUI(); window.triggerTutAction('open_settings');" aria-label="Open Personalization Settings" data-tooltip="Settings">
+        <button class="btn btn-secondary has-tooltip" onclick="document.getElementById('settings-modal').style.display='flex'; window.renderShortcutsUI(); window.triggerTutAction('open_settings');" aria-label="Open Personalization Settings" data-tooltip="Settings (Ctrl+,)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <span>Settings</span>
         </button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.openAccountModal()" aria-label="Open Account Settings" data-tooltip="Account">
+        <button class="btn btn-secondary has-tooltip" onclick="window.openAccountModal()" aria-label="Open Account Settings" data-tooltip="Account (Ctrl+Shift+A)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
             <span>Account</span>
         </button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.openDashboard()" aria-label="Open Projects Dashboard" data-tooltip="Projects">
+        <button class="btn btn-secondary has-tooltip" onclick="window.openDashboard()" aria-label="Open Projects Dashboard" data-tooltip="Projects (Ctrl+O)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
             <span>Projects</span>
         </button>
-        <button id="save-btn" class="btn btn-secondary has-tooltip" onclick="window.saveToCloud(event)" aria-label="Save to Cloud" data-tooltip="Save to Cloud">
+        <button id="save-btn" class="btn btn-secondary has-tooltip" onclick="window.saveToCloud(event)" aria-label="Save to Cloud" data-tooltip="Save (Ctrl+S)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
             <span>Save</span>
         </button>
         
         <div class="toolbar-separator" aria-hidden="true"></div>
         
-        <button id="focus-btn" class="btn btn-secondary has-tooltip" onclick="window.toggleFocusMode()" aria-label="Toggle Focus Mode" data-tooltip="Focus Mode">
+        <button class="btn btn-secondary has-tooltip" onclick="window.toggleTreeView()" aria-label="Toggle Tree View" data-tooltip="Tree View">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+            <span>Tree</span>
+        </button>
+        <button id="focus-btn" class="btn btn-secondary has-tooltip" onclick="window.toggleFocusMode()" aria-label="Toggle Focus Mode" data-tooltip="Focus Mode (Ctrl+Shift+F)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></svg>
             <span>Focus</span>
         </button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.showTidyMenu(event)" aria-label="Auto Tidy Canvas Organization" data-tooltip="Auto-Tidy Canvas">
+        <button class="btn btn-secondary has-tooltip" onclick="window.showTidyMenu(event)" aria-label="Auto Tidy Canvas Organization" data-tooltip="Auto-Tidy Canvas (Ctrl+Shift+T)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
             <span>Tidy</span>
         </button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.takeSnapshot()" aria-label="Export Canvas as PNG Snapshot" data-tooltip="Export Snapshot">
+        <button class="btn btn-secondary has-tooltip" onclick="window.takeSnapshot()" aria-label="Export Canvas as PNG Snapshot" data-tooltip="Export Snapshot (Ctrl+Shift+P)">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
             <span>Snapshot</span>
         </button>
         
-        <button class="btn has-tooltip" onclick="window.compileStory()" aria-label="Compile and Review Story Draft" data-tooltip="Compile Draft">
+        <button class="btn has-tooltip" onclick="window.compileStory()" aria-label="Compile and Review Story Draft" data-tooltip="Compile Draft (Ctrl+Enter)">
             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             <span>Compile</span>
         </button>
     </div>
 
-    <div class="zoom-controls" role="group" aria-label="Canvas Zoom Controls">
-        <button class="btn btn-secondary has-tooltip" onclick="window.zoomIn()" aria-label="Zoom In" data-tooltip="Zoom In">+</button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.resetView()" aria-label="Reset Zoom Level" data-tooltip="Reset Zoom">Reset</button>
-        <button class="btn btn-secondary has-tooltip" onclick="window.zoomOut()" aria-label="Zoom Out" data-tooltip="Zoom Out">-</button>
+    <div class="zoom-controls" role="group" aria-label="Canvas Zoom Controls" style="display: flex; flex-direction: column; align-items: flex-end; gap: 8px;">
+        <div id="minimap-container" style="display: none; width: 200px; height: 140px; background: rgba(0,0,0,0.1); border: 1px solid var(--surface-border); border-radius: 12px; position: relative; overflow: hidden; backdrop-filter: blur(8px);">
+            <canvas id="minimap-canvas" style="width: 100%; height: 100%; display: block;"></canvas>
+            <div id="minimap-viewport" style="position: absolute; border: 2px solid var(--focus-ring); background: rgba(59,130,246,0.1); cursor: move; pointer-events: none; box-sizing: border-box;"></div>
+            <div id="minimap-overlay" style="position: absolute; inset: 0; cursor: pointer; touch-action: none;"></div>
+        </div>
+        <div style="display: flex; gap: 4px;">
+            <button class="btn btn-secondary has-tooltip" onclick="window.toggleMinimap()" aria-label="Toggle Minimap" data-tooltip="Minimap">🗺️</button>
+            <button class="btn btn-secondary has-tooltip" onclick="document.getElementById('shortcuts-help-modal').style.display='flex'" aria-label="Keyboard Shortcuts" data-tooltip="Shortcuts Help">⌘</button>
+            <button class="btn btn-secondary has-tooltip" onclick="window.zoomIn()" aria-label="Zoom In" data-tooltip="Zoom In">+</button>
+            <button class="btn btn-secondary has-tooltip" onclick="window.resetView()" aria-label="Fit to Screen" data-tooltip="Fit to Screen">[ ]</button>
+            <button class="btn btn-secondary has-tooltip" onclick="window.zoomOut()" aria-label="Zoom Out" data-tooltip="Zoom Out">-</button>
+        </div>
     </div>
 
     <!-- The Infinite Workspace -->
@@ -111,6 +120,17 @@
         <div id="marquee" class="marquee-selection"></div>
     </div>
     
+    <div id="tree-view-panel" role="region" aria-label="Tree View">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--grid-color); padding-bottom: 0.5rem;">
+            <h2 style="margin: 0; font-size: 1.2rem; font-weight: 600;">Structure</h2>
+            <div style="display: flex; gap: 4px;">
+                <button class="btn btn-secondary" style="border-radius: 4px; padding: 4px; box-shadow: none; border:none; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-size: 18px;" onclick="if(window.addTreeNode) window.addTreeNode(null, event)" aria-label="Add Node" title="Add Root Node">+</button>
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 6px; box-shadow: none; border:none; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;" onclick="window.toggleTreeView()" aria-label="Close Tree View">✕</button>
+            </div>
+        </div>
+        <div id="tree-view-content" style="overflow-y: auto; flex: 1; padding-right: 8px;"></div>
+    </div>
+
     <!-- Docking Highlight Zones -->
     <div class="dock-zone top"></div>
     <div class="dock-zone bottom"></div>
@@ -152,6 +172,26 @@
         <button class="text-color-reset" data-color="">Reset Color</button>
     </div>
     <!-- Modals -->
+    <div id="shortcuts-help-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="shortcuts-help-title">
+        <div class="modal-content help-modal-content">
+            <div class="modal-header">
+                <h2 id="shortcuts-help-title">Keyboard Shortcuts</h2>
+                <button class="btn btn-secondary" style="border-radius: 50%; padding: 10px; border: none;" onclick="document.getElementById('shortcuts-help-modal').style.display='none'" aria-label="Close Help">✕</button>
+            </div>
+            <div class="shortcuts-grid">
+                <div class="shortcut-row"><span>New Thought Bubble</span> <kbd>Ctrl/Cmd + N</kbd></div>
+                <div class="shortcut-row"><span>Toggle Focus Mode</span> <kbd>Ctrl/Cmd + Shift + F</kbd></div>
+                <div class="shortcut-row"><span>Delete Selected</span> <kbd>Del / Backspace</kbd></div>
+                <div class="shortcut-row"><span>Undo Action</span> <kbd>Ctrl/Cmd + Z</kbd></div>
+                <div class="shortcut-row"><span>Pan Canvas</span> <kbd>Arrow Keys</kbd></div>
+                <div class="shortcut-row"><span>Center / Fit to Screen</span> <kbd>Shift + 1</kbd></div>
+                <div class="shortcut-row"><span>Go to Root Node</span> <kbd>Home</kbd></div>
+                <div class="shortcut-row"><span>Navigate Connected Node</span> <kbd>Arrow Keys</kbd></div>
+                <div class="shortcut-row"><span>Save Draft</span> <kbd>Ctrl/Cmd + S</kbd></div>
+                <div class="shortcut-row"><span>Compile Draft</span> <kbd>Ctrl/Cmd + Enter</kbd></div>
+            </div>
+        </div>
+    </div>
     <div id="welcome-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="welcome-title">
         <div class="modal-content" style="max-width: 450px; text-align: center;">
             <div class="modal-header" style="border-bottom: none; margin-bottom: 0; justify-content: flex-end; padding-bottom: 0;">
